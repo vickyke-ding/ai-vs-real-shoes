@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shoe Classification</title>
+    <style>
+        #shoe-image {
+            display: block;
+            margin: 20px auto;
+            border: 2px solid #000;
+            padding: 10px;
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Is this shoe AI-generated or real?</h1>
+    <img id="shoe-image" src="" alt="Loading..." width="300">
+    <p id="debug-url"></p> <!-- 显示 URL 方便调试 -->
+    <br><br>
+    <button onclick="submitChoice('AI')">AI-Generated</button>
+    <button onclick="submitChoice('Real')">Real</button>
+
+    <script>
+    async function fetchImage() {
+        try {
+            console.log("Fetching image..."); // Debugging log
+
+            const response = await fetch("http://127.0.0.1:5000/get_image");
+            const data = await response.json();
+
+            console.log("Fetched image:", data.image_url);
+
+            // 显示 URL 方便调试
+            document.getElementById("debug-url").innerText = "Image URL: " + data.image_url;
+
+            if (data.image_url) {
+                let imgElement = document.getElementById("shoe-image");
+                imgElement.src = data.image_url;
+                imgElement.dataset.imageUrl = data.image_url; // 存储当前图片 URL
+            } else {
+                console.error("No image URL received.");
+            }
+        } catch (error) {
+            console.error("Error fetching image:", error);
+        }
+    }
+
+    async function submitChoice(choice) {
+        let imgElement = document.getElementById("shoe-image");
+        let imageUrl = imgElement.dataset.imageUrl; // 读取当前图片 URL
+
+        if (!imageUrl) {
+            alert("No image loaded!");
+            return;
+        }
+
+        const data = { image_url: imageUrl, choice: choice };
+        console.log("Submitting:", data);
+
+        try {
+            const response = await fetch("http://127.0.0.1:5000/submit", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            console.log("Response:", result);
+            alert("Submitted successfully!");
+
+            fetchImage(); // 🚀 这里自动加载下一张图片
+        } catch (error) {
+            console.error("Error submitting choice:", error);
+        }
+    }
+
+    fetchImage();
+    </script>
+
+</body>
+</html>
