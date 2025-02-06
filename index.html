@@ -4,22 +4,93 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shoe Classification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        img {
+            width: 320px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 20px;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #progress {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        #survey-code {
+            display: none;
+            font-size: 20px;
+            color: green;
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 10px;
+            background: #e3fce3;
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body>
+
     <h1>Is this shoe AI-generated or real?</h1>
-    <img id="shoe-image" src="" alt="Loading..." width="300">
-    <br><br>
-    <button onclick="submitChoice('AI-Generated')">AI-Generated</button>
-    <button onclick="submitChoice('Real')">Real</button>
+    <img id="shoe-image" src="" alt="Loading...">
+
+    <div class="button-container">
+        <button onclick="submitChoice('AI-Generated')">AI-Generated</button>
+        <button onclick="submitChoice('Real')">Real</button>
+    </div>
+
+    <p id="progress">Completed: 0 / 30</p>
+
+    <div id="survey-code">Survey Code: <strong id="code"></strong></div>
 
     <script>
-        const API_URL = "https://ai-vs-real-shoes.onrender.com"; 
+        const API_URL = "https://ai-vs-real-shoes.onrender.com"; // ✅ Render API 地址
+        let count = 0;
 
         async function fetchImage() {
             try {
                 const response = await fetch(`${API_URL}/get_image`);
                 const data = await response.json();
-                console.log("Fetched image:", data.image_url); // 调试信息
                 document.getElementById("shoe-image").src = data.image_url;
                 document.getElementById("shoe-image").dataset.label = data.label;
             } catch (error) {
@@ -29,26 +100,36 @@
         }
 
         async function submitChoice(choice) {
+            if (count >= 30) return; // 防止超过 30 题还继续提交
+
             const imageUrl = document.getElementById("shoe-image").src;
             const label = document.getElementById("shoe-image").dataset.label;
 
-            const response = await fetch(`${API_URL}/submit`, {
+            await fetch(`${API_URL}/submit`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ image_url: imageUrl, choice: choice, correct_label: label })
             });
 
-            const result = await response.json();
-            console.log("Response recorded:", result);
+            count++;
+            document.getElementById("progress").innerText = `Completed: ${count} / 30`;
 
-            // 获取新的图片
-            fetchImage();
+            if (count >= 30) {
+                showSurveyCode();
+            } else {
+                fetchImage();
+            }
         }
 
-        // 页面加载时获取第一张图片
+        function showSurveyCode() {
+            let code = Math.random().toString(36).substr(2, 8).toUpperCase(); // 🎯 生成随机 Survey Code
+            document.getElementById("code").innerText = code;
+            document.getElementById("survey-code").style.display = "block";
+        }
+
+        // 🔄 页面加载时获取第一张图片
         fetchImage();
     </script>
+
 </body>
 </html>
