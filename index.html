@@ -72,14 +72,44 @@
 <body>
 
     <h1>Is this shoe AI-generated or real?</h1>
+
+    <p>
+        <strong>To determine if a shoe image is AI-generated, please use the following criteria:</strong><br>
+        <strong>Shadow:</strong> Check if shadows align with the light source and display natural gradation. AI-generated shadows may look unrealistic.<br>
+        <strong>Content:</strong> Assess if the shoe’s context and setting are appropriate. Unusual compositions or settings might suggest AI manipulation.<br>
+        <strong>Texturer:</strong> Examine the shoe’s texture for realistic material representation. AI images might show inconsistent or overly smooth textures.<br>
+        <strong>Physics:</strong> Ensure the shoe adheres to physical laws, like correct shape under gravity and realistic interactions with surfaces.<br>
+        Apply these criteria carefully to spot discrepancies that hint at AI generation, and submit your judgment below from 0 to 10.<br>
+        <strong>In each criteria, 0 indicates the feature is most likely AI-generated, 10 indicates the feature is completely realistic.</strong>
+    </p>
+
     <img id="shoe-image" src="" alt="Loading...">
 
     <div class="button-container">
         <button onclick="submitChoice('AI-Generated')">AI-Generated</button>
+        <button onclick="submitChoice('Hard to Tell')">Hard to Tell</button>
         <button onclick="submitChoice('Real')">Real</button>
     </div>
 
-    <p id="progress">Completed: 0 / 30</p>
+    <div class="slider-container" style="margin-top: 20px;">
+        <label for="shadow">Shadow:</label>
+        <input type="range" id="shadow" name="shadow" min="0" max="10" step="1">
+        <span id="shadow-value">5</span>
+        <br>
+        <label for="content">Content:</label>
+        <input type="range" id="content" name="content" min="0" max="10" step="1">
+        <span id="content-value">5</span>
+        <br>
+        <label for="texture">Texture:</label>
+        <input type="range" id="texture" name="texture" min="0" max="10" step="1">
+        <span id="texture-value">5</span>
+        <br>
+        <label for="physics">Physics:</label>
+        <input type="range" id="physics" name="physics" min="0" max="10" step="1">
+        <span id="physics-value">5</span>
+    </div>
+
+    <p id="progress">Completed: 0 / 15</p>
 
     <div id="survey-code">Survey Code: <strong id="code"></strong></div>
 
@@ -100,21 +130,25 @@
         }
 
         async function submitChoice(choice) {
-            if (count >= 30) return; // 防止超过 30 题还继续提交
+            if (count >= 15) return; // 防止超过 15 题还继续提交
 
             const imageUrl = document.getElementById("shoe-image").src;
             const label = document.getElementById("shoe-image").dataset.label;
+            const shadow = document.getElementById("shadow").value;
+            const content = document.getElementById("content").value;
+            const texture = document.getElementById("texture").value;
+            const physics = document.getElementById("physics").value;
 
             await fetch(`${API_URL}/submit`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ image_url: imageUrl, choice: choice, correct_label: label })
+                body: JSON.stringify({ image_url: imageUrl, choice: choice, correct_label: label, shadow: shadow, content: content, texture: texture, physics: physics })
             });
 
             count++;
-            document.getElementById("progress").innerText = `Completed: ${count} / 30`;
+            document.getElementById("progress").innerText = `Completed: ${count} / 15`;
 
-            if (count >= 30) {
+            if (count >= 15) {
                 showSurveyCode();
             } else {
                 fetchImage();
@@ -126,6 +160,13 @@
             document.getElementById("code").innerText = code;
             document.getElementById("survey-code").style.display = "block";
         }
+
+        // 更新滑动块的值显示
+        document.querySelectorAll('input[type="range"]').forEach(slider => {
+            slider.addEventListener('input', function() {
+                document.getElementById(`${this.id}-value`).innerText = this.value;
+            });
+        });
 
         // 🔄 页面加载时获取第一张图片
         fetchImage();
