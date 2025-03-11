@@ -17,12 +17,10 @@
             justify-content: center;
             height: 100vh;
         }
-
         h1 {
             font-size: 24px;
             margin-bottom: 20px;
         }
-
         img {
             width: 320px;
             height: auto;
@@ -30,12 +28,10 @@
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
-
         .button-container {
             display: flex;
             gap: 20px;
         }
-
         button {
             background-color: #007BFF;
             color: white;
@@ -46,17 +42,14 @@
             cursor: pointer;
             transition: background 0.3s ease;
         }
-
         button:hover {
             background-color: #0056b3;
         }
-
         #progress {
             margin-top: 20px;
             font-size: 18px;
             font-weight: bold;
         }
-
         #survey-code {
             display: none;
             font-size: 20px;
@@ -67,21 +60,21 @@
             background: #e3fce3;
             border-radius: 8px;
         }
+        #ai-results {
+            margin-top: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            background: #f3f3f3;
+            padding: 10px;
+            border-radius: 5px;
+            max-width: 600px;
+        }
     </style>
 </head>
 <body>
 
     <h1>Is this shoe AI-generated or real?</h1>
-
-    <p>
-        <strong>To determine if a shoe image is AI-generated, please use the following criteria:</strong><br>
-        <strong>Shadow:</strong> Check if shadows align with the light source and display natural gradation. AI-generated shadows may look unrealistic.<br>
-        <strong>Content:</strong> Assess if the shoe’s context and setting are appropriate. Unusual compositions or settings might suggest AI manipulation.<br>
-        <strong>Texturer:</strong> Examine the shoe’s texture for realistic material representation. AI images might show inconsistent or overly smooth textures.<br>
-        <strong>Physics:</strong> Ensure the shoe adheres to physical laws, like correct shape under gravity and realistic interactions with surfaces.<br>
-        Apply these criteria carefully to spot discrepancies that hint at AI generation, and submit your judgment below from 0 to 10.<br>
-        <strong>In each criteria, 0 indicates the feature is most likely AI-generated, 10 indicates the feature is completely realistic.</strong>
-    </p>
 
     <img id="shoe-image" src="" alt="Loading...">
 
@@ -109,12 +102,15 @@
         <span id="physics-value">5</span>
     </div>
 
+    <div id="ai-results">AI Feedback will appear here...</div>
+
     <p id="progress">Completed: 0 / 15</p>
 
     <div id="survey-code">Survey Code: <strong id="code"></strong></div>
 
     <script>
-        const API_URL = "https://ai-vs-real-shoes.onrender.com"; // ✅ Render API 地址
+        const API_URL = "https://ai-vs-real-shoes.onrender.com"; // ✅ Your backend API
+
         let count = 0;
 
         async function fetchImage() {
@@ -130,7 +126,7 @@
         }
 
         async function submitChoice(choice) {
-            if (count >= 15) return; // 防止超过 15 题还继续提交
+            if (count >= 15) return;
 
             const imageUrl = document.getElementById("shoe-image").src;
             const label = document.getElementById("shoe-image").dataset.label;
@@ -142,7 +138,7 @@
             await fetch(`${API_URL}/submit`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ image_url: imageUrl, choice: choice, correct_label: label, shadow: shadow, content: content, texture: texture, physics: physics })
+                body: JSON.stringify({ image_url: imageUrl, choice: choice, correct_label: label, shadow, content, texture, physics })
             });
 
             count++;
@@ -155,21 +151,45 @@
             }
         }
 
+        function sendScores() {
+            const imageUrl = document.getElementById("shoe-image").src;
+            const scores = {
+                image_url: imageUrl,
+                shadow: document.getElementById("shadow").value,
+                content: document.getElementById("content").value,
+                texture: document.getElementById("texture").value,
+                physics: document.getElementById("physics").value
+            };
+
+            fetch(`${API_URL}/evaluate_scores`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(scores)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("ai-results").innerText = "AI Feedback: " + data.comment;
+            })
+            .catch(error => console.error('Error sending scores:', error));
+        }
+
         function showSurveyCode() {
-            let code = Math.random().toString(36).substr(2, 8).toUpperCase(); // 🎯 生成随机 Survey Code
+            let code = Math.random().toString(36).substr(2, 8).toUpperCase();
             document.getElementById("code").innerText = code;
             document.getElementById("survey-code").style.display = "block";
         }
 
-        // 更新滑动块的值显示
-        document.querySelectorAll('input[type="range"]').forEach(slider => {
-            slider.addEventListener('input', function() {
-                document.getElementById(`${this.id}-value`).innerText = this.value;
+        // Add event listeners to sliders
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll('input[type="range"]').forEach(slider => {
+                slider.addEventListener('input', function() {
+                    document.getElementById(`${this.id}-value`).innerText = this.value;
+                    sendScores(); // Send scores to backend every time slider changes
+                });
             });
-        });
 
-        // 🔄 页面加载时获取第一张图片
-        fetchImage();
+            fetchImage();
+        });
     </script>
 
 </body>
