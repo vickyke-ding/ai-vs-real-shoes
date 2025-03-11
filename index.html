@@ -1,105 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Shoe Classification</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        img {
-            width: 320px;
-            height: auto;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-        .button-container {
-            display: flex;
-            gap: 20px;
-        }
-        button {
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        #progress {
-            margin-top: 20px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        #survey-code {
-            display: none;
-            font-size: 20px;
-            color: green;
-            font-weight: bold;
-            margin-top: 20px;
-            padding: 10px;
-            background: #e3fce3;
-            border-radius: 8px;
-        }
-        #ai-results {
-            margin-top: 20px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-            background: #f3f3f3;
-            padding: 10px;
-            border-radius: 5px;
-            max-width: 600px;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+      h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+      }
+      img {
+        width: 320px;
+        height: auto;
+        border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+      .button-container {
+        display: flex;
+        gap: 20px;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      #progress {
+        margin-top: 20px;
+        font-size: 18px;
+        font-weight: bold;
+      }
+      #survey-code {
+        display: none;
+        font-size: 20px;
+        color: green;
+        font-weight: bold;
+        margin-top: 20px;
+        padding: 10px;
+        background: #e3fce3;
+        border-radius: 8px;
+      }
+      #ai-results {
+        margin-top: 20px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #333;
+        background: #f3f3f3;
+        padding: 10px;
+        border-radius: 5px;
+        max-width: 600px;
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <h1>Is this shoe AI-generated or real?</h1>
 
-    <img id="shoe-image" src="" alt="Loading...">
+    <img id="shoe-image" src="" alt="Loading..." />
 
     <div class="button-container">
-        <button onclick="submitChoice('AI-Generated')">AI-Generated</button>
-        <button onclick="submitChoice('Hard to Tell')">Hard to Tell</button>
-        <button onclick="submitChoice('Real')">Real</button>
+      <button onclick="submitChoice('AI-Generated')">AI-Generated</button>
+      <button onclick="submitChoice('Hard to Tell')">Hard to Tell</button>
+      <button onclick="submitChoice('Real')">Real</button>
     </div>
 
-    <div class="slider-container" style="margin-top: 20px;">
-        <label for="shadow">Shadow:</label>
-        <input type="range" id="shadow" name="shadow" min="0" max="10" step="1">
-        <span id="shadow-value">5</span>
-        <br>
-        <label for="content">Content:</label>
-        <input type="range" id="content" name="content" min="0" max="10" step="1">
-        <span id="content-value">5</span>
-        <br>
-        <label for="texture">Texture:</label>
-        <input type="range" id="texture" name="texture" min="0" max="10" step="1">
-        <span id="texture-value">5</span>
-        <br>
-        <label for="physics">Physics:</label>
-        <input type="range" id="physics" name="physics" min="0" max="10" step="1">
-        <span id="physics-value">5</span>
+    <div class="slider-container" style="margin-top: 20px">
+      <label for="shadow">Shadow:</label>
+      <input
+        type="range"
+        id="shadow"
+        name="shadow"
+        min="0"
+        max="10"
+        step="1"
+        oninput="evaluateScores()"
+      />
+      <span id="shadow-value">5</span>
+      <br />
+
+      <label for="content">Content:</label>
+      <input
+        type="range"
+        id="content"
+        name="content"
+        min="0"
+        max="10"
+        step="1"
+        oninput="evaluateScores()"
+      />
+      <span id="content-value">5</span>
+      <br />
+
+      <label for="texture">Texture:</label>
+      <input
+        type="range"
+        id="texture"
+        name="texture"
+        min="0"
+        max="10"
+        step="1"
+        oninput="evaluateScores()"
+      />
+      <span id="texture-value">5</span>
+      <br />
+
+      <label for="physics">Physics:</label>
+      <input
+        type="range"
+        id="physics"
+        name="physics"
+        min="0"
+        max="10"
+        step="1"
+        oninput="evaluateScores()"
+      />
+      <span id="physics-value">5</span>
     </div>
 
     <div id="ai-results">AI Feedback will appear here...</div>
@@ -109,88 +143,120 @@
     <div id="survey-code">Survey Code: <strong id="code"></strong></div>
 
     <script>
-        const API_URL = "https://ai-vs-real-shoes.onrender.com"; // ✅ Your backend API
+      const API_URL = "https://ai-vs-real-shoes.onrender.com"; //"http://127.0.0.1:5000";
 
-        let count = 0;
+      let count = 0;
 
-        async function fetchImage() {
-            try {
-                const response = await fetch(`${API_URL}/get_image`);
-                const data = await response.json();
-                document.getElementById("shoe-image").src = data.image_url;
-                document.getElementById("shoe-image").dataset.label = data.label;
-            } catch (error) {
-                console.error("Error fetching image:", error);
-                document.getElementById("shoe-image").alt = "Error fetching image";
-            }
+      async function fetchImage() {
+        try {
+          const response = await fetch(`${API_URL}/get_image`);
+          const data = await response.json();
+          document.getElementById("shoe-image").src = data.image_url;
+          document.getElementById("shoe-image").dataset.label = data.label;
+        } catch (error) {
+          console.error("Error fetching image:", error);
+          document.getElementById("shoe-image").alt = "Error fetching image";
         }
+      }
 
-        async function submitChoice(choice) {
-            if (count >= 15) return;
+      async function submitChoice(choice) {
+        if (count >= 15) return;
 
-            const imageUrl = document.getElementById("shoe-image").src;
-            const label = document.getElementById("shoe-image").dataset.label;
-            const shadow = document.getElementById("shadow").value;
-            const content = document.getElementById("content").value;
-            const texture = document.getElementById("texture").value;
-            const physics = document.getElementById("physics").value;
+        const imageUrl = document.getElementById("shoe-image").src;
+        const label = document.getElementById("shoe-image").dataset.label;
+        const shadow = parseInt(document.getElementById("shadow").value, 10);
+        const content = parseInt(document.getElementById("content").value, 10);
+        const texture = parseInt(document.getElementById("texture").value, 10);
+        const physics = parseInt(document.getElementById("physics").value, 10);
 
-            await fetch(`${API_URL}/submit`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ image_url: imageUrl, choice: choice, correct_label: label, shadow, content, texture, physics })
-            });
-
-            count++;
-            document.getElementById("progress").innerText = `Completed: ${count} / 15`;
-
-            if (count >= 15) {
-                showSurveyCode();
-            } else {
-                fetchImage();
-            }
-        }
-
-        function sendScores() {
-            const imageUrl = document.getElementById("shoe-image").src;
-            const scores = {
-                image_url: imageUrl,
-                shadow: document.getElementById("shadow").value,
-                content: document.getElementById("content").value,
-                texture: document.getElementById("texture").value,
-                physics: document.getElementById("physics").value
-            };
-
-            fetch(`${API_URL}/evaluate_scores`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(scores)
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("ai-results").innerText = "AI Feedback: " + data.comment;
-            })
-            .catch(error => console.error('Error sending scores:', error));
-        }
-
-        function showSurveyCode() {
-            let code = Math.random().toString(36).substr(2, 8).toUpperCase();
-            document.getElementById("code").innerText = code;
-            document.getElementById("survey-code").style.display = "block";
-        }
-
-        // Add event listeners to sliders
-        document.addEventListener("DOMContentLoaded", function() {
-            document.querySelectorAll('input[type="range"]').forEach(slider => {
-                slider.addEventListener('input', function() {
-                    document.getElementById(`${this.id}-value`).innerText = this.value;
-                    sendScores(); // Send scores to backend every time slider changes
-                });
-            });
-
-            fetchImage();
+        await fetch(`${API_URL}/submit`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            image_url: imageUrl,
+            choice: choice,
+            correct_label: label,
+            shadow,
+            content,
+            texture,
+            physics,
+          }),
         });
-    </script>
 
-</body>
+        count++;
+        document.getElementById(
+          "progress"
+        ).innerText = `Completed: ${count} / 15`;
+
+        if (count >= 15) {
+          showSurveyCode();
+        } else {
+          fetchImage();
+        }
+      }
+
+      async function evaluateScores() {
+        const imageUrl = document.getElementById("shoe-image").src;
+        const shadow = parseInt(document.getElementById("shadow").value, 10);
+        const content = parseInt(document.getElementById("content").value, 10);
+        const texture = parseInt(document.getElementById("texture").value, 10);
+        const physics = parseInt(document.getElementById("physics").value, 10);
+
+        console.log("📤 Sending scores to backend:", {
+          imageUrl,
+          shadow,
+          content,
+          texture,
+          physics,
+        });
+
+        try {
+          const response = await fetch(`${API_URL}/evaluate_scores`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              image_url: imageUrl,
+              shadow,
+              content,
+              texture,
+              physics,
+            }),
+          });
+
+          const result = await response.json();
+          console.log("📥 Received AI feedback:", result);
+
+          if (result.feedback) {
+            displayFeedback(result.feedback);
+          } else {
+            displayFeedback(["⚠️ AI did not return feedback."]);
+          }
+        } catch (error) {
+          console.error("❌ Error evaluating scores:", error);
+          displayFeedback(["⚠️ Could not analyze AI feedback."]);
+        }
+      }
+
+      function displayFeedback(feedback) {
+        const feedbackContainer = document.getElementById("ai-results");
+        feedbackContainer.innerHTML = feedback
+          .map((item) => `<p>${item}</p>`)
+          .join("");
+      }
+
+      function showSurveyCode() {
+        let code = Math.random().toString(36).substr(2, 8).toUpperCase();
+        document.getElementById("code").innerText = code;
+        document.getElementById("survey-code").style.display = "block";
+      }
+
+      document.querySelectorAll('input[type="range"]').forEach((slider) => {
+        slider.addEventListener("input", function () {
+          document.getElementById(`${this.id}-value`).innerText = this.value;
+        });
+      });
+
+      fetchImage();
+    </script>
+  </body>
 </html>
