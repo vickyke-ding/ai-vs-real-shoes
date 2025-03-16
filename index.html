@@ -153,6 +153,7 @@
           const data = await response.json();
           document.getElementById("shoe-image").src = data.image_url;
           document.getElementById("shoe-image").dataset.label = data.label;
+          resetSliders();
         } catch (error) {
           console.error("Error fetching image:", error);
           document.getElementById("shoe-image").alt = "Error fetching image";
@@ -242,6 +243,14 @@
         feedbackContainer.innerHTML = feedback
           .map((item) => `<p>${item}</p>`)
           .join("");
+      }
+
+      function resetSliders() {
+        const sliders = document.querySelectorAll('input[type="range"]');
+        sliders.forEach((slider) => {
+          slider.value = 5;
+          document.getElementById(`${slider.id}-value`).innerText = 5;
+        });
       }
 
       function showSurveyCode() {
